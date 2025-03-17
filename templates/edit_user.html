@@ -17,9 +17,8 @@
     <div class="container">
         <div class="form-box">
             <h1>Edit User</h1>
-            
-            <div id="output-msg" class="flash-message" style="display: none;"></div>
-            <div id="error-msg" class="error-message" style="display: none;"></div>
+            <h2>Edit details below</h2>
+
             <form id="editUserForm">
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" value="{{ user.full_name }}" required>
@@ -33,7 +32,8 @@
                 <input type="text" id="email" name="email" value="{{ user.email }}" required>
                 <button type="submit" class="save-btn">Save Changes</button>
             </form>
-            <div id="output-msg"></div>
+            <div id="output-msg" class="flash-message" style="display: none;></div>
+            <div id="error-msg" class="error-message" style="display: none;></div>
         </div>
     </div>
     <footer class="footer">
