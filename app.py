@@ -33,12 +33,9 @@ def login():
             print("HERE in IF??")
             session['user_id'] = user.id
             session['user_name'] = user.full_name
-            flash(f'Welcome back, {user.full_name}!', 'success')
-            return redirect(url_for('home'))
+            return jsonify({'success': True, 'message': f'Welcome back, {user.full_name}!'})
         else:
-            print("HERE in else??")
-            flash('Please check your email and password if they are correct', 'error')
-            return render_template('login.html')
+            return jsonify({'success': False, 'message': 'Please check your email and password'})
     
     return render_template('login.html')
 
@@ -157,7 +154,6 @@ def home():
 @app.route('/view_users_list')
 def view_users_list():
     if 'user_id' not in session:
-        flash('Please login .', 'error')
         return redirect(url_for('login'))
     
     users = User.query.all()
@@ -169,14 +165,12 @@ def edit_user(user_id):
     if 'user_id' not in session:
         if request.method == 'POST':
             return jsonify({'success': False, 'message': 'Please login first'})
-        flash('Login first', 'error')
         return redirect(url_for('login'))
     
     user = User.query.get(user_id)
     if not user:
         if request.method == 'POST':
             return jsonify({'success': False, 'message': 'User not found'})
-        flash('User not found', 'error')
         return redirect(url_for('view_users_list'))
     
     if request.method == 'GET':
@@ -219,23 +213,19 @@ def change_password():
 @app.route('/delete_user/<int:user_id>')
 def delete_user(user_id):
     if 'user_id' not in session:
-        flash('Please login.', 'error')
-        return redirect(url_for('login'))
+        return jsonify({'success': False, 'message': 'Please login'})
     user = User.query.get(user_id)
     if not user:
-        flash('User not found.', 'error')
-        return redirect(url_for('view_users_list'))
+        return jsonify({'success': False, 'message': 'User not found'})
     db.session.delete(user)
     db.session.commit()
-    flash('Deleted successfully', 'success')
-    return redirect(url_for('view_users_list'))
+    return jsonify({'success': True, 'message': 'User deleted successfully'})
 
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5002)
