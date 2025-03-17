@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">User Logo</div>
+        <div class="nav-links">
+            <span class="greeting">Welcome, {{ session['user_name'] }}</span>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+        </div>
+    </nav>
+    <div class="container">
+        <h2 class="personal-info-title">Personal Information</h2>
+        <div class="info-box">
+            <table class="info-table">
+                <tr><th>Name</th>
+                    <td>{{ user.full_name }}</td></tr>
+
+                <tr><th>Age</th>
+                    <td>{{ user.age }}</td></tr>
+
+                <tr><th>Phone No</th>
+                    <td>{{ user.phone }}</td></tr>
+
+                <tr><th>Address</th>
+                    <td>{{ user.address if user.address else 'Not provided' }}</td></tr>
+
+                <tr><th>Email</th>
+                    <td>{{ user.email }}</td></tr>
+            </table>
+        </div>
+        <div class="button-container">
+            <button class="view-users-btn" onclick="window.location.href='/view_users_list'">View All Users</button>
+            <button class="change-password-btn" onclick="window.location.href='/change_password'">Change Password</button>
+        </div>
+    </div>
+    <footer class="footer">
+        © 2025 1st project. All rights reserved.
+    </footer>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>All Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">User Logo</div>
+        <div class="nav-links">
+            <span class="greeting">Welcome, {{ session['user_name'] }}</span>
+            <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+        </div>
+    </nav>
+    <div class="container">
+        <h2>All Users</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Phone No</th>
+                    <th>Address</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="user-table">
+                {% for user in users %}
+                <tr id="user-{{ user.id }}">
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ user.age }}</td>
+                    <td>{{ user.phone or 'Not provided' }}</td>
+                    <td>{{ user.address or 'Not provided' }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <button class="edit-btn" onclick="window.location.href='/edit_user/{{ user.id }}'">Edit</button>
+                        <button class="delete-btn" data-user-id="{{ user.id }}">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="button-container">
+            <button class="back-btn" onclick="window.location.href='/home'">Back to Home</button>
+        </div>
+    </div>
+    <footer class="footer">
+        © 2025 1st project. All rights reserved.
+    </footer>
+    <script>
+        $(document).ready(function() {
+            $('.delete-btn').on('click', function() {
+                const userId = $(this).data('user-id');
+                if (confirm('Are you sure you want to delete this user?')) {
+                    $.ajax({
+                        url: '/delete_user/' + userId,
+                        type: 'POST',
+                        data: {}
+                    }).done(function(data) {
+                        if (data.success) {
+                            alert(data.message);
+                            $('#user-' + userId).remove(); // Remove row from table
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
