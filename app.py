@@ -210,16 +210,35 @@ def change_password():
             db.session.rollback()
             return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
-@app.route('/delete_user/<int:user_id>')
+@app.route('/delete_user/<int:user_id>', methods=['POST','GET'])  
 def delete_user(user_id):
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': 'Please login'})
+    
     user = User.query.get(user_id)
     if not user:
         return jsonify({'success': False, 'message': 'User not found'})
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({'success': True, 'message': 'User deleted successfully'})
+    
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'User deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+    
+@app.route('/delete_confirm/<int:user_id>', methods=['GET'])
+def delete_confirm(user_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user = User.query.get(user_id)
+    if not user:
+        return redirect(url_for('view_users_list'))
+    
+
+    print(f"Rendering delete_confirm.html for user ID: {user_id}")
+    return render_template('delete_confirm.html', user=user)
 
 @app.route('/logout')
 def logout():

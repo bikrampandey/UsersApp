@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Confirmation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">User Logo</div>
+        <div class="nav-links">
+            <button class="back-btn" onclick="window.location.href='/view_users_list'">Back</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="form-box">
+            <h1>Delete User</h1>
+            <h2>Are you sure you want to delete {{ user.full_name }}?</h2>
+            <div class="button-container">
+                <button class="cancel-btn" onclick="window.location.href='/view_users_list'">Cancel</button>
+                <button class="delete-btn" id="confirm-delete" data-user-id="{{ user.id }}">Delete</button>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        © 2025 1st project. All rights reserved.
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            $('#confirm-delete').on('click', function(e) {
+                e.preventDefault();
+                const userId = $(this).data('user-id');
+                
+                $.ajax({
+                    url: '/delete_user/' + userId,
+                    type: 'POST',
+                    data: {},
+                    success: function(data) {
+                        if (data.success) {
+                            window.location.href = '/view_users_list';
+                        } else {
+                            alert(data.message);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while deleting the user.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

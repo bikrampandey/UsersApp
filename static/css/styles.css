@@ -193,3 +193,18 @@ td {
 .login-btn-form:hover, .signup-btn-form:hover {
     background: #ff6a4d;
 }
+
+.cancel-btn {
+    background: #6c757d; /* Gray for cancel */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+    font-size: 16px;
+}
+
+.cancel-btn:hover {
+    background: #5a6268;
+}
