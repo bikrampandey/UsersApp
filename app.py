@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from models import db, User 
-from werkzeug.utils import secure_filename 
+from models import db, User, Contact
+from werkzeug.utils import secure_filename
 import os
 
 app = Flask(__name__)
@@ -10,12 +10,12 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/sample_users_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
- 
-#Database migration settings
+# Print template directory for debugging
+print("Template directory:", os.path.join(os.path.dirname(__file__), 'templates'))
+
+# Database migration settings
 db.init_app(app)
 migrate = Migrate(app, db)
-
-
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -39,7 +39,6 @@ def login():
     
     return render_template('login.html')
 
-
 @app.route('/login-by-ajax', methods=['POST', 'GET']) 
 def login_by_ajax():
     if request.method == 'POST':
@@ -56,9 +55,6 @@ def login_by_ajax():
             return jsonify({'output_msg': 'Invalid email or password. Please try again.', 'success': False})
         
     return render_template('login.html')
-        
-
-   
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -70,12 +66,9 @@ def signup():
         email = request.form['email']
         password = request.form['password']
        
-
-      
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return render_template('signup.html', error="Email already exists!")
-
        
         new_user = User(
             full_name=full_name,
@@ -107,12 +100,9 @@ def signup_user_by_ajax():
         email = request.form['email']
         password = request.form['password']
         
-
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return jsonify({'success': False, 'message': 'Email already in use, please try another email address.'})
-
-        
 
         new_user = User(
             full_name=full_name,
@@ -121,7 +111,6 @@ def signup_user_by_ajax():
             age=age,
             address=address,
             phone=phone,
-            
         )
         
         try:
@@ -133,15 +122,11 @@ def signup_user_by_ajax():
             return jsonify({'success': False, 'message': f'Error: {str(e)}'})
     
     return render_template('signup.html')
-        
-
-
-
 
 @app.route('/home')
 def home():
     if 'user_id' not in session:
-        flash('Please login .', 'error')
+        flash('Please login.', 'error')
         return redirect(url_for('login'))
     
     user = User.query.get(session['user_id'])
@@ -156,38 +141,37 @@ def view_users_list():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    users = User.query.all()
-    return render_template('view_users_list.html', users=users)
+    contacts = Contact.query.filter_by(user_id=session['user_id']).all()
+    print(f"Contacts fetched: {[contact.name for contact in contacts]}")
+    return render_template('view_users_list.html', users=contacts)
 
-
-@app.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
-def edit_user(user_id):
+@app.route('/edit_contact/<int:contact_id>', methods=['GET', 'POST'])
+def edit_contact(contact_id):
     if 'user_id' not in session:
         if request.method == 'POST':
             return jsonify({'success': False, 'message': 'Please login first'})
         return redirect(url_for('login'))
     
-    user = User.query.get(user_id)
-    if not user:
+    contact = Contact.query.get(contact_id)
+    if not contact or contact.user_id != session['user_id']:
         if request.method == 'POST':
-            return jsonify({'success': False, 'message': 'User not found'})
+            return jsonify({'success': False, 'message': 'Contact not found or unauthorized'})
         return redirect(url_for('view_users_list'))
     
     if request.method == 'GET':
-        return render_template('edit_user.html', user=user)
+        return render_template('edit_user.html', contact=contact)
     elif request.method == 'POST':
         try:
-            user.full_name = request.form['name']
-            user.age = int(request.form['age'])
-            user.phone = request.form['phone']
-            user.address = request.form['address']
-            user.email = request.form['email']
+            contact.name = request.form['name']
+            contact.age = int(request.form['age'])
+            contact.phone = request.form['phone']
+            contact.address = request.form['address']
+            contact.email = request.form['email']
             db.session.commit()
-            return jsonify({'success': True, 'message': 'User updated successfully'})
+            return jsonify({'success': True, 'message': 'Contact updated successfully'})
         except Exception as e:
             db.session.rollback()
             return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-        
 
 @app.route('/change_password', methods=['GET', 'POST'])
 def change_password():
@@ -210,41 +194,82 @@ def change_password():
             db.session.rollback()
             return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
-@app.route('/delete_user/<int:user_id>', methods=['POST','GET'])  
-def delete_user(user_id):
+@app.route('/delete_contact/<int:contact_id>', methods=['POST', 'GET'])
+def delete_contact(contact_id):
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': 'Please login'})
     
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({'success': False, 'message': 'User not found'})
+    contact = Contact.query.get(contact_id)
+    if not contact or contact.user_id != session['user_id']:
+        return jsonify({'success': False, 'message': 'Contact not found or unauthorized'})
     
     try:
-        db.session.delete(user)
+        db.session.delete(contact)
         db.session.commit()
-        return jsonify({'success': True, 'message': 'User deleted successfully'})
+        return jsonify({'success': True, 'message': 'Contact deleted successfully'})
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-    
+
 @app.route('/delete_confirm/<int:user_id>', methods=['GET'])
 def delete_confirm(user_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    user = User.query.get(user_id)
-    if not user:
+    contact = Contact.query.get(user_id)
+    if not contact or contact.user_id != session['user_id']:
         return redirect(url_for('view_users_list'))
     
+    print(f"Rendering delete_confirm.html for contact ID: {user_id}")
+    return render_template('delete_confirm.html', user=contact)
 
-    print(f"Rendering delete_confirm.html for user ID: {user_id}")
-    return render_template('delete_confirm.html', user=user)
+@app.route('/add_contact', methods=['GET', 'POST'])
+def add_contact():
+    print("Entering /add_contact")
+    if 'user_id' not in session:
+        print("No session user_id, redirecting to login")
+        return jsonify({'success': False, 'redirect': url_for('login')})
+
+    if request.method == 'POST':
+        print("Received POST request to /add_contact")
+        try:
+            full_name = request.form['name']
+            age = int(request.form['age'])
+            phone = request.form['phone']
+            address = request.form['address']
+            email = request.form['email']
+            print(f"Form data: name={full_name}, age={age}, phone={phone}, address={address}, email={email}")
+
+            existing_contact = Contact.query.filter_by(email=email).first()
+            if existing_contact:
+                print(f"Email {email} already exists in contacts")
+                return jsonify({'success': False, 'message': 'Email already exists in contacts!'})
+
+            new_contact = Contact(
+                name=full_name,
+                age=age,
+                phone=phone,
+                address=address,
+                email=email,
+                user_id=session['user_id']
+            )
+
+            db.session.add(new_contact)
+            db.session.commit()
+            print(f"Added contact: {new_contact.name}, ID: {new_contact.id}")
+            return jsonify({'success': True, 'redirect': url_for('view_users_list')})
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error adding contact: {str(e)}")
+            return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+    print("Rendering add_contact.html")
+    return render_template('add_contact.html')
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
-
 
 if __name__ == '__main__':
     app.run(debug=True, port=5002)

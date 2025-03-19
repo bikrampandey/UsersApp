@@ -163,7 +163,7 @@ td {
     margin-top: 20px;
 }
 
-.signup-btn, .login-btn, .back-btn, .home-btn, .logout-btn, .save-btn, .change-btn, .view-users-btn, .change-password-btn, .edit-btn, .delete-btn {
+.signup-btn, .login-btn, .back-btn, .home-btn, .logout-btn, .save-btn, .change-btn, .view-users-btn, .change-password-btn, .edit-btn, .delete-btn, .contact-btn {
     background: #ff4b2b;
     color: white;
     border: none;
@@ -174,7 +174,7 @@ td {
     font-size: 16px;
 }
 
-.signup-btn:hover, .login-btn:hover, .back-btn:hover, .home-btn:hover, .logout-btn:hover, .save-btn:hover, .change-btn:hover, .view-users-btn:hover, .change-password-btn:hover, .edit-btn:hover, .delete-btn:hover {
+.signup-btn:hover, .login-btn:hover, .back-btn:hover, .home-btn:hover, .logout-btn:hover, .save-btn:hover, .change-btn:hover, .view-users-btn:hover, .change-password-btn:hover, .edit-btn:hover, .delete-btn:hover, .contact-btn:hover {
     background: #ff6a4d;
 }
 

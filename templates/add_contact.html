@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Contact</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">User Logo</div>
+        <div class="nav-links">
+            <button class="back-btn" onclick="window.location.href='/view_users_list'">Back</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="form-box">
+            <h1>Add Contact</h1>
+            <form id="addContactForm">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" required>
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" name="phone" required>
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" required>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" required>
+                <button type="submit" class="save-btn">Save Contact</button>
+            </form>
+        </div>
+    </div>
+    <footer class="footer">
+        © 2025 1st project. All rights reserved.
+    </footer>
+    <script>
+    $(document).ready(function() {
+        console.log('jQuery loaded');
+        $('#addContactForm').on('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            const formData = {
+                name: $('#name').val(),
+                age: $('#age').val(),
+                phone: $('#phone').val(),
+                address: $('#address').val(),
+                email: $('#email').val()
+            };
+            console.log('Sending data:', formData);
+            $.ajax({
+                data: formData,
+                type: 'POST',
+                url: '/add_contact',
+                dataType: 'json',
+                success: function(data) {
+                    console.log('AJAX success:', data);
+                    if (data.success) {
+                        sessionStorage.setItem('contactAdded', 'true');
+                        console.log('Redirecting to:', data.redirect);
+                        window.location.href = data.redirect;  // Should redirect to /view_users_list
+                    } else if (data.redirect) {
+                        console.log('Redirecting to login:', data.redirect);
+                        window.location.href = data.redirect;  // Redirect to login if session expired
+                    } else {
+                        alert('Error: ' + data.message);  // Show error message to user
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('AJAX error:', status, error, xhr.responseText);
+                    alert('An error occurred while saving the contact.');
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

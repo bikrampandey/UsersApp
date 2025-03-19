@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>All Users</title>
+    <title>All Contacts</title> <!-- Updated title to reflect contacts -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
@@ -16,14 +16,8 @@
         </div>
     </nav>
     <div class="container">
-        <h2>All Users</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <h2>All Contacts</h2> <!-- Updated heading -->
+        <div id="success-message" class="flash-message" style="display: none;">Contact successfully added</div>
         <table>
             <thead>
                 <tr>
@@ -38,21 +32,24 @@
             </thead>
             <tbody id="user-table">
                 {% for user in users %}
-                <tr id="user-{{ user.id }}">
-                    <td>{{ loop.index }}</td>
-                    <td>{{ user.full_name }}</td>
-                    <td>{{ user.age }}</td>
-                    <td>{{ user.phone or 'Not provided' }}</td>
-                    <td>{{ user.address or 'Not provided' }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>
-                        <button class="edit-btn" onclick="window.location.href='/edit_user/{{ user.id }}'">Edit</button>
-                        <a href="{{ url_for('delete_confirm', user_id=user.id) }}" class="delete-btn">Delete</a>                </tr>
-                {% endfor %}
+<tr id="contact-{{ user.id }}">
+    <td>{{ loop.index }}</td>
+    <td>{{ user.name }}</td>
+    <td>{{ user.age }}</td>
+    <td>{{ user.phone or 'Not provided' }}</td>
+    <td>{{ user.address or 'Not provided' }}</td>
+    <td>{{ user.email }}</td>
+    <td>
+        <button class="edit-btn" onclick="window.location.href='/edit_contact/{{ user.id }}'">Edit</button>
+        <a href="{{ url_for('delete_confirm', user_id=user.id) }}" class="delete-btn">Delete</a>
+    </td>
+</tr>
+{% endfor %}
             </tbody>
         </table>
         <div class="button-container">
             <button class="back-btn" onclick="window.location.href='/home'">Back to Home</button>
+            <button class="contact-btn" onclick="window.location.href='/add_contact'">Add Contact</button>
         </div>
     </div>
     <footer class="footer">
@@ -60,6 +57,14 @@
     </footer>
     <script>
         $(document).ready(function() {
+            console.log('jQuery loaded in view_users_list');
+            if (sessionStorage.getItem('contactAdded') === 'true') {
+                $('#success-message').show();
+                setTimeout(() => {
+                    $('#success-message').hide();
+                    sessionStorage.removeItem('contactAdded');
+                }, 1000);
+            }
             $('.delete-btn').off('click');
         });
     </script>
