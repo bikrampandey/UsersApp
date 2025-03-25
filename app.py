@@ -7,8 +7,21 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/sample_users_db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# our database uri
+if 'RDS_DB_NAME' in os.environ:
+    app.config['SQLALCHEMY_DATABASE_URI'] = \
+        'postgresql://{username}:{password}@{host}:{port}/{database}'.format(
+        username=os.environ['RDS_USERNAME'],
+        password=os.environ['RDS_PASSWORD'],
+        host=os.environ['RDS_HOSTNAME'],
+        port=os.environ['RDS_PORT'],
+        database=os.environ['RDS_DB_NAME'],
+    )
+else:
+    # our database uri
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:1234@localhost:5432/sample_users_db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Print template directory for debugging
 print("Template directory:", os.path.join(os.path.dirname(__file__), 'templates'))
