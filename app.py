@@ -20,7 +20,7 @@ if 'RDS_DB_NAME' in os.environ:
     )
 else:
     # our database uri
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:1234@localhost:5432/sample_users_db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:6979BIKRAm##@localhost:5432/sample_users_db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Print template directory for debugging
